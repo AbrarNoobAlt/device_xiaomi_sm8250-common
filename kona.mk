@@ -453,6 +453,9 @@ PRODUCT_PACKAGES += \
     android.hardware.power-service-qti \
     android.hardware.power@1.3.vendor
 
+# QTI Power HAL
+$(call inherit-product-if-exists, vendor/qcom/opensource/power/power-vendor-product.mk)
+
 # Public libraries
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/public.libraries.txt:$(TARGET_COPY_OUT_VENDOR)/etc/public.libraries.txt
