@@ -21,6 +21,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.IBinder;
+import android.view.Display.HdrCapabilities;
+import android.view.SurfaceControl;
 import android.util.Log;
 
 import org.lineageos.settings.dirac.DiracUtils;
@@ -46,5 +49,43 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         ThermalUtils.startService(context);
         RefreshUtils.startService(context);
         FileUtils.enableService(context);
+<<<<<<< HEAD
+=======
+
+        // Override HDR types
+        final IBinder displayToken = SurfaceControl.getInternalDisplayToken();
+        SurfaceControl.overrideHdrTypes(displayToken, new int[]{
+                HdrCapabilities.HDR_TYPE_DOLBY_VISION, HdrCapabilities.HDR_TYPE_HDR10,
+                HdrCapabilities.HDR_TYPE_HLG, HdrCapabilities.HDR_TYPE_HDR10_PLUS});
+
+        //Micro-Service to restore sata of dt2w on reboot
+        SharedPreferences prefs = context.getSharedPreferences(SHAREDD2TW, Context.MODE_PRIVATE);
+        try {
+            mTouchFeature = ITouchFeature.getService();
+            mTouchFeature.setTouchMode(14, prefs.getInt(SHAREDD2TW, 1));
+        } catch (Exception e) {
+            // Do nothing
+        }
+
+        boolean dcDimmingEnabled = sharedPrefs.getBoolean(DC_DIMMING_ENABLE_KEY, false);
+        setDcDimmingStatus(dcDimmingEnabled);
+    }
+
+    void setDcDimmingStatus(boolean enabled) {
+        if (enabled) {
+            FileUtils.writeLine(DISPPARAM_NODE, DISPPARAM_DC_ON);
+            FileUtils.writeLine(DISPPARAM_NODE, DISPPARAM_DIMMING_OFF);
+            FileUtils.writeLine(DISPPARAM_NODE, DISPPARAM_DIMMING_ON);
+            // Update the brightness node so dc dimming updates its state
+            FileUtils.writeLine(BRIGHTNESS_NODE, FileUtils.readOneLine(BRIGHTNESS_NODE));
+        } else {
+            FileUtils.writeLine(DISPPARAM_NODE, DISPPARAM_DIMMING_OFF);
+            FileUtils.writeLine(DISPPARAM_NODE, DISPPARAM_CRC_OFF);
+            FileUtils.writeLine(DISPPARAM_NODE, DISPPARAM_DC_OFF);
+            FileUtils.writeLine(DISPPARAM_NODE, DISPPARAM_DIMMING_ON);
+            // Update the brightness node so dc dimming updates its state
+            FileUtils.writeLine(BRIGHTNESS_NODE, FileUtils.readOneLine(BRIGHTNESS_NODE));
+        }
+>>>>>>> 8bbd769 (sm8250-common: parts: Override HDR types for dolby vision)
     }
 }
